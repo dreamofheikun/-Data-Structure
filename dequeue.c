@@ -1,3 +1,4 @@
+//顺序队列与循环队列
 #include <stdio.h>
 #include <stdlib.h>
 #define MAXSIZE 8
