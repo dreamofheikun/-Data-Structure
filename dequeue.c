@@ -68,3 +68,74 @@ int main()
     Print_SeQueue(q);
     return 0;
 }
+/*************************************************************************/
+
+//链队列
+#include <stdio.h>
+#include <stdlib.h>
+#define MAXSIZE 8
+typedef int datatype;
+
+typedef struct node
+{
+    datatype data;
+    struct node *next;
+} QNode;
+typedef struct
+{
+    QNode *front,*rear;
+} LQueue;
+
+void Init_LQueue(LQueue **q)
+{
+    QNode *p;
+    *q=(LQueue*)malloc(sizeof(LQueue));
+    p=(QNode*)malloc(sizeof(QNode));
+    p->next=NULL;
+    (*q)->rear=p;
+    (*q)->front=p;
+}
+void In_LQueue(LQueue *q,datatype x)
+{
+    QNode *p;
+    p=(QNode*)malloc(sizeof(QNode));
+    p->data=x;
+    p->next=NULL;
+    q->rear->next=p;
+    q->rear=p;
+}
+int Empty_LQueue(LQueue*q)
+{
+    if(q->front==q->rear)
+        return 1;
+    else
+        return 0;
+}
+void Out_LQueue(LQueue *q,datatype *x)
+{
+    QNode *p;
+    if(Empty_LQueue(q))
+        printf("Queue is Empty!\n");
+        else
+        {
+            p=q->front->next;
+            q->front->next=p->next;
+            *x=p->data;
+            free(p);
+            if(q->front->next==NULL)
+                q->rear=q->front;
+        }
+}
+int main()
+{
+    LQueue *q;
+    int i=0;
+    int *x=&i;
+
+    Init_LQueue(&q);
+    for(i=0; i<9; i++)
+        In_LQueue(q,i);
+    for(i=0;i<5;i++)
+        Out_LQueue(q,x);
+    return 0;
+}
