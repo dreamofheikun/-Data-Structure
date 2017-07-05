@@ -1,0 +1,21 @@
+//汉诺塔问题递归解法
+#include <stdio.h>
+#include <stdlib.h>
+void move(int n,char a,char b,char c)
+{
+    if(n>0)
+    {
+        move(n-1,a,c,b);                //注意参数顺序变化
+        printf("%c(%d)->%c\n",a,n,c);
+        move(n-1,b,a,c);                //注意参数顺序变化
+    }
+}
+int main()
+{
+    int n;
+    char a='A',b='B',c='C';
+    scanf("%d",&n);
+    move(n,a,b,c);
+    //printf("Hello world!\n");
+    return 0;
+}
