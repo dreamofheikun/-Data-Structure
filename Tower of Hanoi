@@ -19,3 +19,60 @@ int main()
     //printf("Hello world!\n");
     return 0;
 }
+
+//汉诺塔问题非递归解法
+struct hanoi
+{
+    int id;
+    char x,y,z;
+}stack[30];
+int main()
+{
+    int i=1,n;
+    char ch;
+    printf("Input number of diskes:\n");
+    scanf("%d",&n);
+    if(n==1)
+        printf("A(1)->C\n");
+    else
+    {
+        stack[1].id=n;
+        stack[1].x='A';
+        stack[1].y='B';
+        stack[1].z='C';
+
+        do
+        {
+            while(n>1)
+            {
+                n--;
+                i++;
+                stack[i].id=n;
+                stack[i].x=stack[i-1].x;
+                stack[i].y=stack[i-1].z;
+                stack[i].z=stack[i-1].y;
+            }
+            printf("%c(%d)->%c\n",stack[i].x,stack[i].id,stack[i].z);
+            i--;
+            do
+            {
+                if(i>=1)
+                    printf("%c(%d)->%c\n",stack[i].x,stack[i].id,stack[i].z);
+                stack[i].id--;
+                n=stack[i].id;
+                if(n>=1)
+                {
+                    ch=stack[i].x;
+                    stack[i].x=stack[i].y;
+                    stack[i].y=ch;
+                }
+                if(n==1)
+                {
+                    printf("%c(%d)->%c\n",stack[i].x,stack[i].id,stack[i].z);
+                    i--;
+                }
+            }while(n<=1&&i>0);
+        }while(i>0);
+    }
+    return 0;
+}
