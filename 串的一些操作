@@ -17,7 +17,8 @@ int StrCat(char s1[],char s2[]) //串连接
     len2=StrLength(s2);
     if(len1+len2>MAXSIZE-1)
         return 0;
-    i=0;j=0;
+    i=0;
+    j=0;
     while(s1[i]!='\0')
         i++;
     while(s2[j]!='\0')
@@ -31,7 +32,7 @@ int SubStr(char *s,char t[],int i,int len) //求子串
     slen=StrLength(s);
     if(i<1 || i>slen || len<0 || len>slen-i+1)
         return 0;
-    for(j=0;j<len;j++)
+    for(j=0; j<len; j++)
         t[j]=s[i+j-1];
     t[j]='\0';
     return 1;
@@ -52,7 +53,7 @@ int StrInsert(char *s,int i,char *t) //串插入
     if(i<0 || i>len1+1 || len1+len2>MAXSIZE-1)
         return 0;
     k=i;
-    for(j=0;s[k]!='\0';j++)
+    for(j=0; s[k]!='\0'; j++)
         str[j]=s[k++];
     str[j]='\0';
     j=0;
@@ -65,10 +66,96 @@ int StrInsert(char *s,int i,char *t) //串插入
     s[i]='\0';
     return 1;
 }
+int StrCopy(char t[],char *s)//串赋值
+{
+    int len=StrLength(s);
+    if(len==0)
+        return 0;
+    int i=0;
+    for(i=0; i<len; i++)
+        t[i]=s[i];
+    t[i]='\0';
+    return 1;
+}
+int StrDelete(char s[],int i,int len)//串删除 传参时，第一个参数不能是char*类型，否则段错误 char* 是不能被修改的
+{
+    int len1=StrLength(s);
+    if(len1==0 || i<0 || i> len1 || len<=0 || len>len1-i+1)
+        return 0;
+    int j,k;
+    j=i-1;
+    k=i+len-1;
+    while(s[k]!='\0')
+    {
+        s[j]=s[k];
+        j++;
+        k++;
+    }
+    s[j]='\0';
+    return 1;
+}
+int StrIndex(char *s,char *t)//子串定位
+{
+    char data[MAXSIZE];
+    int len1=StrLength(s);
+    int len2=StrLength(t);
+    if(len1==0 || len2==0 || len1<len2)
+        return -1;
+    int i=0;
+    for(i=0; i<=len1-len2; i++)
+    {
+        if(s[i]==t[0])
+        {
+            SubStr(s,data,i+1,len2);
+            if(StrCmp(t,data)==0)
+                break;
+        }
+    }
+    if(i>len1-len2)
+        return -1;
+    return i;
+}
+int StrRep(char *s,char *t,char *r)//串替换
+{
+    int len1=StrLength(s);
+    int len2=StrLength(t);
+    int len3=StrLength(r);
+    int i,j;
+    if(len1==0 || len2==0 ||len3==0)
+        return -1;
+    int index=StrIndex(s,t);
+    while(index>=0)
+    {
+        len1=StrLength(s);
+        if(len1+len3>MAXSIZE)
+            break;
+        i=index;
+        if(len2<=len3)
+            StrInsert(s,i+1,r);
+        else
+        {
+            for(j=0; j<len3; j++)
+            {
+                s[i]=r[j];
+                i++;
+            }
+            while(s[i]!='\0')
+            {
+                s[i]=s[i+1];
+                i++;
+            }
+        }
+        index=StrIndex(s,t);
+    }
+    return 1;
+}
 int main()
 {
     //一些测试
-    char *ch1="123456789";
+    /*
+    char ch1[MAXSIZE]="123456789";
+    char ch2[MAXSIZE];
+    char *ch3="456";
     printf("%d\n",StrLength(ch1));
 
     char t[MAXSIZE];
@@ -80,6 +167,21 @@ int main()
     printf("%s\n",S);
 
     StrCat(S,ch1);
-    printf("%s",S);
+    printf("%s\n",S);
+
+    StrCopy(ch2,ch1);
+    printf("%s\n",ch2);
+
+    StrDelete(ch1,2,3);//传参时，第一个参数不能是char*类型，否则段错误
+    printf("%s\n",ch1);
+
+    int index=StrIndex(ch1,ch3);
+    printf("%d",index);
+    */
+    char ch1[MAXSIZE]="123456239";
+    char *ch2="23";
+    char *ch3="a";
+    StrRep(ch1,ch2,ch3);
+    printf("%s",ch1);
     return 0;
 }
