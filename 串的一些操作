@@ -77,7 +77,7 @@ int StrCopy(char t[],char *s)//串赋值
     t[i]='\0';
     return 1;
 }
-int StrDelete(char s[],int i,int len)//串删除 传参时，第一个参数不能是char*类型，否则段错误 char* 是不能被修改的
+int StrDelete(char s[],int i,int len)//串删除 传参时，第一个参数不能是char*类型，否则段错误
 {
     int len1=StrLength(s);
     if(len1==0 || i<0 || i> len1 || len<=0 || len>len1-i+1)
@@ -120,7 +120,8 @@ int StrRep(char *s,char *t,char *r)//串替换
     int len1=StrLength(s);
     int len2=StrLength(t);
     int len3=StrLength(r);
-    int i,j;
+    int i,j,k;
+    char data[MAXSIZE];
     if(len1==0 || len2==0 ||len3==0)
         return -1;
     int index=StrIndex(s,t);
@@ -131,7 +132,21 @@ int StrRep(char *s,char *t,char *r)//串替换
             break;
         i=index;
         if(len2<=len3)
-            StrInsert(s,i+1,r);
+        {
+            j=0;
+            k=i+len2;
+            while(s[k]!='\0')
+            {
+                data[j++]=s[k++];
+            }
+            data[j]='\0';
+            for(j=0;j<len3;j++)
+                s[i++]=r[j];
+            j=0;
+            while(data[j]!='\0')
+                s[i++]=data[j++];
+            s[i]='\0';
+        }
         else
         {
             for(j=0; j<len3; j++)
