@@ -1,3 +1,8 @@
+/***************************************************
+            顺序串的基本运算
+   ***子串定位、串删除、串替换、串赋值****
+     这四个函数书上没给代码，本人自己写的
+***************************************************/
 #include <stdio.h>
 #include <stdlib.h>
 #define MAXSIZE 100
@@ -198,5 +203,153 @@ int main()
     char *ch3="a";
     StrRep(ch1,ch2,ch3);
     printf("%s",ch1);
+    return 0;
+}
+
+
+/**************************************************
+                链串的基本运算
+    比顺序串少了几个运算，有兴趣的可以自己写的加上
+***************************************************/
+#include <stdio.h>
+#include <stdlib.h>
+typedef struct snode
+{
+    char data;
+    struct snode *next;
+} LiString;
+
+void StrAssingn(LiString **s,char str[]) //串赋值
+{
+    LiString *p,*r;
+    int i;
+    *s=(LiString*)malloc(sizeof(LiString));
+    r=*s;
+    for(i=0; str[i]!='\0'; i++)
+    {
+        p=(LiString*)malloc(sizeof(LiString));
+        p->data=str[i];
+        r->next=p;
+        r=p;
+    }
+    r->next=NULL;
+}
+int StrLength(LiString *s)  //求串长
+{
+    int i=0;
+    LiString *p=s->next;
+    while(p!=NULL)
+    {
+        i++;
+        p=p->next;
+    }
+    return i;
+}
+
+void StrCat(LiString *s,LiString *t)  //串连接
+{
+    #if 0  //本人自己所写，可能有Bug。
+    LiString *p=s->next;
+    while(p->next!=NULL)
+        p=p->next;
+    p->next=t->next;
+    #endif // 0
+
+    
+    #if 1 //书上写的源代码
+    LiString *p,*q,*r,*str;
+    str=(LiString*)malloc(sizeof(LiString));
+    r=str;
+    p=t->next;
+    while(p!=NULL)
+    {
+        q=(LiString*)malloc(sizeof(LiString));
+        q->data=p->data;
+        r->next=q;
+        r=q;
+        p=p->next;
+    }
+    r->next=NULL;
+    p=s;
+    while(p->next!=NULL)
+        p=p->next;
+    p->next=str->next;
+    free(str);
+    #endif // 0
+}
+void SubStr(LiString *s,LiString **str,int i,int len) //求子串
+{
+    LiString *p,*q,*r;
+    int k;
+    p=s->next;
+    *str=(LiString*)malloc(sizeof(LiString));
+    (*str)->next=NULL;
+    r=*str;
+    if(i<1 || i>StrLength(s) || len<0 || i+len>StrLength(s))
+        goto L1;
+    for(k=0;k<i-1;k++)
+        p=p->next;
+    for(k=0;k<len;k++)
+    {
+        q=(LiString*)malloc(sizeof(LiString));
+        q->data=p->data;
+        r->next=q;
+        r=q;
+        p=p->next;
+    }
+    r->next=NULL;
+    L1: ;
+}
+void StrInsert(LiString *s,int i,LiString *t) //串插入
+{
+    LiString *p,*r;
+    int k;
+    p=s->next;
+    for(k=0;k<i-1;k++)
+        p=p->next;
+    r=p->next;
+    p->next=t->next;
+    p=t;
+    while(p->next!=NULL)
+        p=p->next;
+    p->next=r;
+}
+void StrPrint(LiString *s)
+{
+    LiString *p=s->next;
+    while(p!=NULL)
+    {
+        printf("%c",p->data);
+        p=p->next;
+    }
+    printf("\n");
+}
+
+int main()
+{
+// 都是做的一些测试
+    char str[100]={"abcdefghij"};
+    char ch1[100]={"klmn"};
+
+    LiString *t;
+    LiString *s;
+
+    StrAssingn(&s,str);
+    StrAssingn(&t,ch1);
+//    StrPrint(s);
+//
+//    int len=StrLength(s);
+//    printf("%d\n",len);
+
+    StrCat(s,t);
+    StrPrint(s);
+//
+//    LiString *ch2;
+//    SubStr(s,&ch2,3,4);
+//    StrPrint(ch2);
+//
+//    StrInsert(ch2,2,s);
+//    StrPrint(ch2);
+
     return 0;
 }
