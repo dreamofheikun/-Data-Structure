@@ -1,0 +1,169 @@
+
+#include<stdio.h>
+#include<stdlib.h>
+#include<queue>            //C中需要自己编写队列 这里是C++
+#define MAXSIZE 30
+typedef struct node
+{
+    char data;
+    struct node *lchild,*rchild;
+}BSTree;
+/********************************************************
+                二叉树的遍历
+ *******************************************************/
+//先序遍历递归算法
+void Preorder(BSTree*p)
+{
+    if(p!=NULL)
+    {
+        printf("%3c",p->data);
+        Preorder(p->lchild);
+        Preorder(p->rchild);
+    }
+}
+//中序遍历递归算法
+void Inorder(BSTree *p)
+{
+    if(p!=NULL)
+    {
+        Inorder(p->lchild);
+        printf("%3c",p->data);
+        Inorder(p->rchild);
+    }
+}
+//后序遍历递归算法
+void Postorder(BSTree*p)
+{
+    if(p!=NULL)
+    {
+        Postorder(p->lchild);
+        Postorder(p->rchild);
+        printf("%3c",p->data);
+    }
+}
+//先序遍历非递归算法
+void Preorder_1(BSTree *p)
+{
+    BSTree *s[MAXSIZE];
+    int i=0;
+    s[0]=NULL;
+    while(p!=NULL || i>0)
+    {
+        if(p!=NULL)
+        {
+            printf("%3c",p->data);
+            s[i++]=p;
+            p=p->lchild;
+        }
+        else
+        {
+            p=s[--i];
+            p=p->rchild;
+        }
+    }
+}
+//中序遍历非递归算法
+void Inorder_1(BSTree *p)
+{
+    BSTree *s[MAXSIZE];
+    int i=0;
+    s[0]=NULL;
+    while(i>=0)
+    {
+        if(p!=NULL)
+        {
+            s[++i]=p;
+            p=p->lchild;
+        }
+        else
+        {
+            p=s[i--];
+            printf("%3c",p->data);
+            p=p->rchild;
+        }
+        if(p==NULL && i==0)
+            break;
+    }
+}
+//后序遍历非递归算法
+void Postorder_1(BSTree *p)
+{
+    BSTree *s[MAXSIZE];
+    int b[MAXSIZE];
+    int i=0;
+    s[0]=NULL;
+    do
+    {
+        if(p!=NULL)
+        {
+            s[++i]=p;
+            b[i]=0;
+            p=p->lchild;
+        }
+        else
+        {
+            p=s[i--];
+            if(!b[i+1])
+            {
+                s[++i]=p;
+                b[i]=1;
+                p=p->rchild;
+            }
+            else
+            {
+                printf("%3c",p->data);
+                p=NULL;
+            }
+        }
+    }while(p!=NULL || i>0);
+}
+//二叉树的层次遍历
+void Transleve(BSTree *t)
+{
+   queue<BSTree *> Q;
+   BSTree *p;
+   if(t!=NULL)
+        printf("%2c",t->data);
+    Q.push(t);
+   while(!Q.empty())
+   {
+        p=Q.front();
+        Q.pop();
+        if(p->lchild!=NULL)
+        {
+            printf("%2c",p->lchild->data);
+            Q.push(p->lchild);
+        }
+        if(p->rchild!=NULL)
+        {
+            printf("%2c",p->rchild->data);
+            Q.push(p->rchild);
+        }
+   }
+}
+/*****************************************
+            二叉树的创建
+*****************************************/
+void Createb(BSTree **p)
+{
+    char ch;
+    scanf("%c",&ch);
+    if(ch!='.')
+    {
+        *p=(BSTree*)malloc(sizeof(BSTree));
+        (*p)->data=ch;
+        Createb(&(*p)->lchild);
+        Createb(&(*p)->rchild);
+    }
+    else
+        *p=NULL;
+}
+int main()
+{
+    BSTree *root;
+    printf("Preorder entet bitree with '..':\n");
+    Createb(&root);
+    printf("Inorder output:\n");
+    Transleve(root);
+    return 0;
+}
