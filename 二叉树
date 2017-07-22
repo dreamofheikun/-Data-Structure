@@ -1,7 +1,8 @@
-
+#include <iostream>
+using namespace std;
 #include<stdio.h>
 #include<stdlib.h>
-#include<queue>            //C中需要自己编写队列 这里是C++
+#include<queue>             //C中需要自己编写队列 这里是C++
 #define MAXSIZE 30
 typedef struct node
 {
@@ -85,7 +86,7 @@ void Inorder_1(BSTree *p)
             break;
     }
 }
-//后序遍历非递归算法
+//后序遍历非递归算法--遍历后原二叉树就被破坏
 void Postorder_1(BSTree *p)
 {
     BSTree *s[MAXSIZE];
@@ -116,6 +117,37 @@ void Postorder_1(BSTree *p)
             }
         }
     }while(p!=NULL || i>0);
+}
+//后序遍历非递归算法另一种不破坏结构的
+void Postorder_2(BSTree *p)
+{
+    BSTree *s[MAXSIZE],*q;
+    int b,i=-1;
+    do
+    {
+        while(p!=NULL)
+        {
+            s[++i]=p;
+            p=p->lchild;
+        }
+        q=NULL;
+        b=1;
+        while(i>=0&&b)
+        {
+            p=s[i];
+            if(p->rchild==q)
+            {
+                printf("%3c",p->data);
+                i--;
+                q=p;
+            }
+            else
+            {
+                p=p->rchild;
+                b=0;
+            }
+        }
+    }while(i>0);
 }
 //二叉树的层次遍历
 void Transleve(BSTree *t)
@@ -158,6 +190,107 @@ void Createb(BSTree **p)
     else
         *p=NULL;
 }
+/*******************************************
+        由遍历序列回复二叉树
+*******************************************/
+void Pre_In_order(char pred[],char ind[],int i,int j,int k,int h,BSTree **p)
+{                       //i,j,k,h分别为当前子树先序序列和中序序列的上、下界
+    int m;
+    *p=(BSTree*)malloc(sizeof(BSTree));
+    (*p)->data=pred[i];
+    m=k;
+    while(ind[m]!=pred[i])
+        m++;
+    if(m==k)
+        (*p)->lchild=NULL;
+    else
+        Pre_In_order(pred,ind,i+1,i+m-k,k,m-1,&(*p)->lchild);
+    if(m==h)
+    {
+        (*p)->rchild=NULL;
+    }
+    else
+        Pre_In_order(pred,ind,i+m-k+1,j,m+1,h,&(*p)->rchild);
+}
+/**************************
+    查找数据元素
+**************************/
+//中序遍历查找数据元素
+BSTree *Search(BSTree *p,char x)
+{
+    BSTree *s[MAXSIZE];
+    int i=0;
+    s[0]=NULL;
+    while(i>=0)
+    {
+        if(p!=NULL)
+        {
+            if(p->data==x)
+                return p;
+            else
+                s[++i]=p;
+            p=p->lchild;
+        }
+        else
+        {
+            p=s[i--];
+            p=p->rchild;
+        }
+        if(p==NULL&&i==0)
+            break;
+    }
+    return NULL;
+}
+//先序遍历二叉树的递归函数朝找数据元素
+BSTree *Search_1(BSTree *bt,char x)
+{
+    BSTree *p;
+    if(bt!=NULL)
+    {
+        if(bt->data==x)
+            return bt;
+        if(bt->lchild!=NULL)
+        {
+            p=Search_1(bt->lchild,x);
+            if(p!=NULL)
+                return p;
+        }
+        if(bt->rchild!=NULL)
+        {
+            p=Search_1(bt->rchild,x);
+            if(p!=NULL)
+                return p;
+        }
+    }
+    return NULL;
+}
+/*********************************
+    统计二叉树的叶子结点个数
+*********************************/
+int Countleaf(BSTree *p)
+{
+    if(p==NULL)
+        return 0;
+    if(p->lchild==NULL&&p->rchild==NULL)
+        return 1;
+    return (Countleaf(p->lchild)+Countleaf(p->rchild));
+}
+/****************************
+    求二叉树的深度
+****************************/
+int Depth(BSTree *p)
+{
+    int lchild=0,rchild=0;
+    if(p==NULL)
+        return 0;
+    else
+    {
+        lchild=Depth(p->lchild);
+        rchild=Depth(p->rchild);
+        return lchild>rchild ? (lchild+1):(rchild+1);
+    }
+}
+/////////////////////////////////////////////
 int main()
 {
     BSTree *root;
