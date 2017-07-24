@@ -1,0 +1,123 @@
+#include <iostream>
+#include<stdlib.h>
+#include<stdio.h>
+using namespace std;
+typedef char datatype;
+typedef struct node
+{
+    datatype data;
+    int ltag,rtag;
+    struct node *lchild;
+    struct node *rchild;
+}TBTree;
+TBTree *pre=NULL;
+
+void Create(TBTree**p,const char **str)
+{
+    if(*(*str)=='.')
+        *p=NULL;
+    else
+    {
+        (*p)=(TBTree*)malloc(sizeof(TBTree));
+        (*p)->data=**str;
+        Create(&(*p)->lchild,(&++(*str)));
+        Create(&(*p)->rchild,(&++(*str)));
+    }
+}
+void Thread(TBTree *p)//对二叉树进行中序线索化
+{
+    if(p!=NULL)
+    {
+        Thread(p->lchild);
+        if(p->lchild==NULL)
+        {
+            p->lchild=pre;
+            p->ltag=1;
+        }
+        else
+            p->ltag=0;
+        if(pre->rchild==NULL)
+        {
+            pre->rchild=p;
+            pre->rtag=1;
+        }
+        else
+            pre->rtag=0;
+        pre=p;
+        Thread(p->rchild);
+    }
+}
+TBTree *CreateThread(TBTree*b)//建立中序线索二叉树
+{
+    TBTree *root;
+    root=(TBTree*)malloc(sizeof(TBTree));
+    root->ltag=0;
+    root->rtag=1;
+    if(b==NULL)
+    {
+        root->lchild=root;
+    }
+    else
+    {
+        root->lchild=b;
+        pre=root;
+        Thread(b);
+        pre->rchild=root;
+        pre->rtag=1;
+        root->rchild=pre;
+    }
+    return root;
+}
+TBTree *Inpre(TBTree*p)//在中序线索树上寻找任意节点的中序前驱结点
+{
+    TBTree *pre1;
+    pre1=p->lchild;
+    if(p->ltag==0)
+        while(pre1->rtag==0)
+            pre1=pre1->rchild;
+    return pre1;
+}
+void Inorder(TBTree *b)//中序遍历中序线索二叉树
+{
+    TBTree *p;
+    p=b->lchild;
+    while(p!=b)
+    {
+        while(p->ltag==0)
+            p=p->lchild;
+        printf("%3c",p->data);
+        while(p->rtag==1&&p->rchild!=b)
+        {
+            p=p->rchild;
+            printf("%3c",p->data);
+        }
+        p=p->rchild;
+    }
+}
+TBTree *InPost(TBTree*p)
+{
+    TBTree *post;
+    post=p->rchild;
+    if(p->rtag==0)
+        while(post->ltag==0)
+            post=post->lchild;
+    return post;
+}
+void Inorder_1(TBTree *p)
+{
+    if(p!=NULL)
+    {
+        Inorder_1(p->lchild);
+        printf("%3c",p->data);
+        Inorder_1(p->rchild);
+    }
+}
+int main()
+{
+    const char *str="abc.d..e..fg...";
+    TBTree *root;
+    Create(&root,&str);
+    TBTree *thr=CreateThread(root);
+    Inorder(thr);
+    return 0;
+}
