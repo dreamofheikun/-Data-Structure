@@ -1,0 +1,79 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include<math.h>
+#define MAXSIZE 100
+//十字链表中变表的狐节点结构
+typedef struct node
+{
+    int tailvex;            //代表边的起始下标（弧尾）
+    int headvex;            //代表边的有箭头的下标（弧头）
+    int *info;              //代表边的权值
+    struct node *hlink;     //指向弧尾相同的下一条弧
+    struct node *thilnk;    //指向弧头相同的下一条弧
+}ArcBox;
+//十字链表中顶点表的节点结构
+typedef struct
+{
+    char vertex;            //顶点值域
+    ArcBox *firstin;        //弧头的第一个节点
+    ArcBox *firstout;       //弧尾的第一个节点
+}VertexNode;
+void Create(VertexNode g[],int n,int e)
+{
+    ArcBox *p;
+    int i,j,k;
+    printf("请输入每个点的值:\n");
+    i=0;
+    while(i<n)
+    {
+        fflush(stdin);
+        scanf("%c",&g[i].vertex);//输入字母时候要输入一个就按回车键，不要一次输入完
+        g[i].firstin=NULL;
+        g[i].firstout=NULL;
+        i++;
+    }
+    //头插法
+    for(k=0;k<e;k++)
+    {
+        printf("边的两个下标：");
+        scanf("%d%d",&i,&j);
+        p=(ArcBox*)malloc(sizeof(ArcBox));
+        p->headvex=j;
+        p->tailvex=i;
+        p->info=NULL;
+        p->thilnk=g[i].firstout;
+        p->hlink=g[j].firstin;
+        g[i].firstout=p;
+        g[j].firstin=p;
+    }
+}
+void DisplayGraphic(VertexNode g[],int n)
+{
+    int i;
+    ArcBox *p;
+    for(i=0;i<n;i++)
+    {
+        p=g[i].firstin;
+        printf("%c做头:",g[i].vertex);
+        while(p!=NULL)
+        {
+            printf("%c->%c\t",g[p->tailvex].vertex,g[i].vertex);
+            p=p->hlink;
+        }
+        p=g[i].firstout;
+        printf("\n%c做尾:",g[i].vertex);
+        while(p)
+        {
+            printf("%c->%c\t",g[i].vertex,g[p->headvex].vertex);
+            p=p->thilnk;
+        }
+        printf("\n");
+    }
+}
+int main()
+{
+    VertexNode g[MAXSIZE];
+    Create(g,5,6);
+    DisplayGraphic(g,5);
+    return 0;
+}
