@@ -1,0 +1,97 @@
+#include <iostream>
+#include<stdio.h>
+#include<stdlib.h>
+using namespace std;
+#include<queue>
+#define MAXSIZE 100
+
+int visited[MAXSIZE];
+
+typedef struct node
+{
+    int adjvex;
+    struct node *next;
+}EdgeNode;
+
+typedef struct vnode
+{
+    int vertex;
+    EdgeNode *firstedge;
+}VertexNode;
+
+void CreateAdjlist(VertexNode g[],int e,int n)
+{
+    EdgeNode *p;
+    int i,j,k;
+    printf("Input data of vetex(0~n-1);\n");
+    for(i=0;i<n;i++)
+    {
+        g[i].vertex=i;
+        g[i].firstedge=NULL;
+    }
+    for(k=1;k<=e;k++)
+    {
+        printf("Input edge of(i,j):");
+        scanf("%d%d",&i,&j);
+        p=(EdgeNode*)malloc(sizeof(EdgeNode));
+        p->adjvex=j;
+        p->next=g[i].firstedge;
+        g[i].firstedge=p;
+        p=(EdgeNode*)malloc(sizeof(EdgeNode));
+        p->adjvex=i;
+        p->next=g[j].firstedge;
+        g[j].firstedge=p;
+    }
+}
+
+void BFS(VertexNode g[], queue<int> Q,int i)
+{
+    int x;
+    EdgeNode *p;
+    printf("%4d",g[i].vertex);
+    visited[i]=1;
+    Q.push(i);
+    while(!Q.empty())
+    {
+        x=Q.front();
+        p=g[x].firstedge;
+        Q.pop();
+        while(p!=NULL)
+        {
+            if(!visited[p->adjvex])
+            {
+                printf("%4d",g[p->adjvex].vertex);
+                visited[p->adjvex]=1;
+                Q.push(p->adjvex);
+            }
+            p=p->next;
+        }
+    }
+}
+
+void AdlistPrint(VertexNode g[],int n)
+{
+    int i;
+    EdgeNode *p;
+    for(i=0;i<n;i++)
+    {
+        p=g[i].firstedge;
+        printf("%d:",g[i].vertex);
+        while (p!=NULL)
+        {
+            printf("%d->",p->adjvex);
+            p=p->next;
+        }
+        printf("NULL\n");
+    }
+}
+
+int main()
+{
+    queue<int> Q;
+    VertexNode g[MAXSIZE];
+    CreateAdjlist(g,6,5);//构造图
+    AdlistPrint(g,5);
+    BFS(g,Q,0);//广度遍历
+    return 0;
+}
