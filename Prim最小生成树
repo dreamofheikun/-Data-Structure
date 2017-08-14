@@ -1,0 +1,116 @@
+#include <iostream>
+
+using namespace std;
+
+#include <stdio.h>
+#include <stdlib.h>
+#define MAXSIZE 100
+
+typedef struct
+
+{
+    int vertex[MAXSIZE];
+    int edges[MAXSIZE][MAXSIZE];
+
+} MyGraph;
+
+void GrarhPrint(MyGraph*g,int n);
+void CreateMGraph(MyGraph*g,int e,int n);
+void Prim(MyGraph*g,int closevertex[],int n);
+void CreateMGraph(MyGraph*g,
+                  int e,//边数
+                  int n //顶点数
+                  )
+
+{
+    int i,j,k,m;
+    printf("Input data of vertex(0~n-1):\n");
+
+    for(i=0; i<n; i++)
+    {
+        g->vertex[i]=i; //把顶点0~n-1保存的数组中
+    }
+    //对顶点初始化，该开始都是没有通路
+    for(i=0; i<n; i++)
+    {
+        for(j=0; j<n; j++)
+        {
+            if(i==j)
+                g->edges[i][j]=0;
+            else
+                g->edges[i][j]=99;//99为不通
+        }
+    }
+    //输入通路，并确定边的权值
+    for(k=0; k<e; k++)
+    {
+        printf("Input edge of(i,j) and edge of size:");
+        scanf("%d%d%d",&i,&j,&m);
+        g->edges[i][j]=m;
+        g->edges[j][i]=m;
+    }
+    GrarhPrint(g,n);
+}
+//输出图
+void GrarhPrint(MyGraph*g,int n)
+{
+    int i=0;
+    int j=0;
+    for(i=0; i<n; i++)
+    {
+        for(j=0; j<n; j++)
+            if(g->edges[i][j]==99||i==j)
+                printf("∞\t");
+            else
+                printf("%d\t",g->edges[i][j]);//这里输入的是哪两个点之间有路径
+        printf("\n");
+    }
+}
+//构造图的最小生成树
+void Prim(MyGraph*g,
+          int closevertex[],//存储顶点0到顶点n需要路过的顶点
+          int n)
+{
+    int lowcost[MAXSIZE];//用来存储顶点0到顶点n的权值（不是直接到达n）
+    int i,j,k,mincost;
+    for(i=1;i<n;i++)
+    {
+        lowcost[i]=g->edges[0][i];
+        closevertex[i]=0;
+    }
+    lowcost[0]=0;
+    closevertex[0]=0;
+    for(i=1;i<n;i++)
+    {
+        mincost=MAXSIZE;;
+        j=1;
+        k=0;
+        while(j<n)
+        {
+            if(lowcost[j]!=0 && lowcost[j]<mincost)
+            {
+                mincost=lowcost[j];
+                k=j;
+            }
+            j++;
+        }
+        printf("Edge:(%d,%d),Wight:%d\n",k,closevertex[k],mincost);
+        lowcost[k]=0;
+        for(j=1;j<n;j++)
+        {
+            if(lowcost[j]!=0 && g->edges[k][j]<lowcost[j])
+            {
+                lowcost[j]=g->edges[k][j];
+                closevertex[j]=k;
+            }
+        }
+    }
+}
+int main()
+{
+    int closevertex[MAXSIZE];
+    MyGraph *g=(MyGraph*)malloc(sizeof(MyGraph));
+    CreateMGraph(g,10,6);
+    Prim(g,closevertex,6);
+    return 0;
+}
