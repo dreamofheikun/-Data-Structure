@@ -1,0 +1,182 @@
+#include <iostream>
+
+using namespace std;
+
+#include<cstdio>
+#include<cstdlib>
+
+typedef struct node
+{
+    int key;
+    struct node *lchild,*rchild;
+    node():key(int()),lchild(NULL),rchild(NULL) {}
+} BSTree;
+
+BSTree *BSTSearch(BSTree *t,int k)//二叉排序树查找
+{
+    //在指针t所指的二叉排序树中关键字为k的节点
+    while(t!=NULL)
+    {
+        if(k==t->key)
+            return t;//k等于根节点*t的关键字则查找成功，返回指针t值
+        else if(t->key>k)
+            t=t->lchild;//k小于根节点*t的关键字值则到t的左子树查找
+        else
+            t=t->rchild;//k大于根节点*t的关键字值则到t的右子树查找
+    }
+    return NULL;//查找失败返回空指针
+}
+void BSTCreat(BSTree **t,int k)
+{
+    //非空二叉排序树中插入一个节点
+    BSTree *p,*q;
+    q=*t;
+    p=NULL;
+    while(q!=NULL)//二叉排序树非空时
+    {
+        if(k==q->key)
+            goto L1;//查找成功不插入新节点
+        else if(k<q->key)
+        {
+            //k节点小于*q的关键字值则到t的左子树查找
+            p=q;
+            q=q->lchild;
+        }
+        else
+        {
+            //k节点大于*q的关键字值则到t的右子树查找
+            p=q;
+            q=q->rchild;
+        }
+    }
+    if(*t==NULL)
+    {
+        q=(BSTree*)malloc(sizeof(BSTree));//查找不成功时创建一个新节点
+        q->key=k;
+        q->rchild=NULL;//因为作为叶节点插入，故左右指针均为空
+        q->lchild=NULL;
+        *t=q;
+    }
+    else
+    {
+        q=(BSTree*)malloc(sizeof(BSTree));//查找不成功时创建一个新节点
+        q->key=k;
+        q->rchild=NULL;//因为作为叶节点插入，故左右指针均为空
+        q->lchild=NULL;
+    }
+    if(p!=NULL)
+    {
+        if(p->key>k)
+            p->lchild=q;//作为原叶节点*p的左孩子插入
+        else
+            p->rchild=q;//作为原叶节点*p的右孩子插入
+    }
+L1:
+    ;
+}
+void BSTDelete(BSTree **t,int k)//在二叉排序树中删除节点
+{
+    BSTree *p,*q,*r;
+    q=*t;
+    p=*t;
+    if(q==NULL)
+        goto L2;
+    if(q->lchild==NULL &&q->rchild==NULL&&q->key==k)
+    {
+        //树t中仅有一个待删节点*q
+        q=NULL;
+        goto L2;
+    }
+    while(q!=NULL)//查找待删节点*q
+    {
+        if(k==q->key)
+            goto L1;//找到待删节点*q
+        else if(k<q->key)
+        {
+            p=q;
+            q=q->lchild;
+        }
+        else
+        {
+            p=q;
+            q=q->rchild;
+        }
+    }
+    if(q==NULL)
+        goto L2;//树中无此节点
+L1:
+    if(q->lchild==NULL&&q->rchild==NULL)
+    {
+        //待删节点*q为叶节点
+        if(p->lchild==q)    //删去待删节点*q
+            p->lchild=NULL;
+        else
+            p->rchild=NULL;
+        free(q);
+    }
+    else if(q->lchild==NULL)//待删节点*q无左子树
+    {
+        if(p->lchild==q)    //用待删节点*q的右子树根来取代待删节点*q
+            p->lchild=q->rchild;
+        else
+            p->rchild=q->rchild;
+        free(q);
+    }
+    else if(q->rchild==NULL)//待删节点*q无右子树
+    {
+        if(p->lchild==q)     //用待删节点*q的左子树根来取代待删节点*q
+            p->lchild=q->lchild;
+        else
+            p->rchild=q->lchild;
+        free(q);
+    }
+    else    //待删节点*q有左子树、右子树
+    {
+        r=q->rchild;
+        if(r->lchild==NULL&&r->rchild==NULL)
+        {
+            //待删节点*q的右子树仅有一个根节点
+            q->key=r->key;  //将右子树这个根结点取代待删节点*q
+            q->rchild=NULL;
+        }
+        else
+        {
+            p=q;    //用p指向“最左下节点”的双亲节点
+            while(r->lchild!=NULL)//查找“最左下节点”
+            {
+                p=r;
+                r=r->lchild;
+            }
+            q->key=r->key;//“最左下节点”的关键字值送待删节点*q的关键字
+            if(p->lchild==r)    //删去“最左下节点”
+                p->lchild=r->rchild;
+            else
+                p->rchild=r->rchild;
+
+        }
+        free(r);
+    }
+
+L2:
+    ;
+}
+void print(BSTree *t)//中序遍历输出
+{
+    if(t!=NULL)
+    {
+        print(t->lchild);
+        cout<<t->key<<" ";
+        print(t->rchild);
+    }
+}
+int main()
+{
+    int a[]= {5,4,8,6,3,2,0,9,1};
+    BSTree *t=NULL;
+    for(unsigned i=0; i<sizeof(a)/sizeof(int); i++)
+        BSTCreat(&t,a[i]);
+    print(t);
+    BSTree *d=BSTSearch(t,2);
+    BSTDelete(&t,d->key);
+    return 0;
+}
