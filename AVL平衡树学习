@@ -1,0 +1,193 @@
+#include <iostream>
+
+using namespace std;
+#include<cstdio>
+#include<cstdlib>
+
+#define LH +1   //左高
+#define EH 0    //等高
+#define RH -1   //右高
+typedef struct BSTNode
+{
+    int data;
+    int bf; //节点的平衡因子
+    struct BSTNode *lchild,*rchild;//左、右孩子指针
+
+}BSTNode,*BSTree;
+void LeftBalance(BSTree &T);
+void RightBalance(BSTree &T);
+void R_Rotate(BSTree &p)//对以*p为根的二叉排序树作右旋处理，处理之后p指向新的树根节点，即旋转处理之前左子树的跟节点
+{
+    BSTree lc=p->lchild;//lc指向的*p的左子树根节点
+    p->lchild=lc->rchild;//lc的右子树挂接为*p的左子树
+    lc->rchild=p;
+    p=lc;//p指向新的根节点
+}
+void L_Rotate(BSTree &p)//对以*p为根的二叉排序树作左旋处理，处理之后p指向新的树根节点，即旋转处理之前的右子树根节点
+{
+    BSTree rc=p->rchild;//rc指向*p的右子树根节点
+    p->rchild=rc->lchild;//rc的左子树挂接为*p的右子树
+    rc->lchild=p;
+    p=rc;//p指向新的根节点
+}
+void L_Lotate(BSTree &p)
+{
+    BSTree rc=p->rchild;
+    p->rchild=rc->lchild;
+    rc->lchild=p;
+    p=rc;
+}
+void R_Lotate(BSTree &p)
+{
+    BSTree lc=p->lchild;
+    p->lchild=lc->rchild;
+    lc->rchild=p;
+    p=lc;
+}
+bool InsertAVL(BSTree &T,int e,bool &taller)//若在平衡的二叉排序树中不存在和e有相同的值的节点，则插入一个数据元素为e的新节点，
+{                                           //并返回true，否则返回false，若因插入而使二叉排序树失去平衡，则作平衡旋转处理，布尔变量
+                                            //taller反映T长高与否
+    if(!T)
+    {//插入新节点，树“长高”，置taller为true
+        T=(BSTree)malloc(sizeof(BSTNode));
+        T->data=e;
+        T->bf=EH;
+        T->lchild=NULL;
+        T->rchild=NULL;
+        taller=true;
+    }
+    else
+    {
+        if(T->data==e)//树中已存在和e相同的关键字节点则不再插入
+        {
+            taller=false;
+            return false;
+        }
+        if(e<T->data)//继续在*T的左子树中进行搜索
+        {
+            if(!InsertAVL(T->lchild,e,taller))
+                return false;//未插入
+            if(taller)//已插入到*T的左子树中且左子树“长高”
+            {
+                switch(T->bf)//检查*T的平衡度
+                {
+                case LH://原本左子树比右子树高，需要进行左平衡处理
+                    LeftBalance(T);
+                    taller=false;
+                    break;
+                case EH://原本左、右子树等高，现因左子树增高而使树增高
+                    T->bf=LH;
+                    taller=true;
+                    break;
+                case RH://原本右子树比左子树高，现左、右子树等高
+                    T->bf=EH;
+                    taller=true;
+                    break;
+                }
+            }
+        }
+        else//继续在*T的右子树中进行搜索
+        {
+            if(!InsertAVL(T->rchild,e,taller))
+                return false;//未插入
+            if(taller)//已插入到*T的右子树且右子树长高
+            {
+                switch(T->bf)//检查*T的平衡度
+                {
+                case LH://原本左子树比右子树高，现左、右子树等高
+                    T->bf=EH;
+                    taller=false;
+                    break;
+                case EH://原本左、右子树等高，现因右子树增高而使树增高
+                    T->bf=RH;
+                    taller=true;
+                    break;
+                case RH://原本右子树比左子树高，需要做右平衡处理
+                    RightBalance(T);
+                    taller=false;
+                    break;
+                }
+            }
+        }
+    }
+    return true;
+}
+void LeftBalance(BSTree &T)
+{//对以指针为T所指节点为根的二叉树作左平衡旋转处理，本算法结束时，指针T指向新的根节点
+    BSTree lc=T->lchild;//lc指向*T的左子树根节点
+    switch(lc->bf)//检查*T的左子树平衡度，并作相应平衡处理
+    {
+    case LH://新节点插入在*T的左孩子的左子树上，要做单右旋转处理
+        T->bf=lc->bf=EH;
+        R_Rotate(T);
+        break;
+    case RH://新节点插入在*T的左孩子的右子树上，要做双旋处理
+        BSTree rd=lc->rchild;//rd指向*T的左子树的右子树根
+        switch(rd->bf)//修改*T及其左孩子的平衡因子
+        {
+        case LH:
+            T->bf=RH;
+            lc->bf=EH;
+            break;
+        case EH:
+            T->bf=lc->bf=EH;
+            break;
+        case RH:
+            T->bf=EH;
+            lc->bf=LH;
+            break;
+        }
+        rd->bf=EH;
+        L_Rotate(T->lchild);//对*T的左子树作左旋平衡处理
+        R_Rotate(T);//对*T作右旋平衡处理
+    }
+}
+void RightBalance(BSTree &T)
+{
+    BSTree rc=T->rchild;
+    switch(rc->bf)
+    {
+    case RH:
+        T->bf=rc->bf=EH;
+        L_Lotate(T);
+        break;
+    case LH:
+        BSTree ld=rc->lchild;
+        switch(ld->bf)
+        {
+        case LH:
+            T->bf=EH;
+            rc->bf=RH;
+            break;
+        case EH:
+            T->bf=rc->bf=EH;
+            break;
+        case RH:
+            T->bf=LH;
+            rc->bf=EH;
+            break;
+        }
+        ld->bf=EH;
+        R_Lotate(T->rchild);
+        L_Lotate(T);
+    }
+}
+void In(BSTree &T)
+{
+    if(T)
+    {
+        In(T->lchild);
+        cout<<T->data<<"->"<<T->bf<<'\t';
+        In(T->rchild);
+    }
+}
+int main()
+{
+    BSTree T=NULL;
+    int a[]={8,12,10};
+    bool flag;
+    for(int i=0;i<3;i++)
+        InsertAVL(T,a[i],flag);
+    In(T);
+    return 0;
+}
