@@ -1,0 +1,210 @@
+#include <iostream>
+
+using namespace std;
+#include<cstring>
+
+typedef int Type;
+typedef enum{RED,BLACK}Color;
+
+typedef struct Node
+{
+    Color color;
+    Type data;
+    struct Node *leftchild,*rightchild,*parent;
+}*PNode,Node;
+
+typedef struct
+{
+    Node *root;
+    Node *NIL;
+}RBTree;
+
+Node *buynode()
+{
+    Node* p=new Node;
+    memset(p,0,sizeof(Node));
+    return p;
+}
+void InitRBTree(RBTree &t)
+{
+    t.NIL=buynode();
+    t.root=t.NIL;
+    t.NIL->color=BLACK;
+    t.NIL->data=-1;
+}
+
+void LeftRotate(RBTree &t,Node *p)
+{
+    Node *s = p->rightchild;
+    p->rightchild=s->leftchild;
+    if(s->leftchild!=t.NIL)
+        s->leftchild->parent=p;
+    s->parent=p->parent;
+    if(p->parent==t.NIL)
+        t.root=s;
+    else if(p==p->parent->leftchild)
+        p->parent->leftchild=s;
+    else
+        p->parent->rightchild=s;
+
+    s->leftchild=p;
+    p->parent=s;
+}
+void RightLotate(RBTree &t,Node *p)
+{
+    Node *s=p->leftchild;
+    p->leftchild=s->rightchild;
+    if(s->rightchild!=t.NIL)
+        s->rightchild->parent=p;
+    s->parent=p->parent;
+    if(p->parent==t.NIL)
+        t.root=s;
+    else if(p==p->parent->leftchild)
+        p->parent->leftchild=s;
+    else
+        p->parent->rightchild=s;
+    s->rightchild=p;
+    p->parent=s;
+}
+
+void RightRotate(RBTree &t, Node *p)
+{
+    Node *s=p->leftchild;
+    p->leftchild=s->rightchild;
+    if(s->rightchild!=t.NIL)
+        s->rightchild->parent=p;
+    s->parent=p->parent;
+    if(p->parent==t.NIL)
+        t.root=s;
+    else if(p==p->parent->leftchild)
+        p->parent->leftchild=s;
+    else
+        p->parent->rightchild=s;
+
+    s->rightchild=p;
+    p->parent=s;
+}
+void LeftLotate(RBTree &t, Node *p)
+{
+    Node *s=p->rightchild;
+    p->rightchild=s->leftchild;
+    if(s->leftchild!=t.NIL)
+        s->leftchild->parent=p;
+    s->parent=p->parent;
+    if(p->parent==t.NIL)
+        t.root=s;
+    else if(p==p->parent->leftchild)
+        p->parent->leftchild=s;
+    else
+        p->parent->rightchild=s;
+    s->leftchild=p;
+    p->parent=s;
+}
+
+void Insert_Fixup(RBTree &t,Node *x)
+{
+    Node *s;
+    while(x->parent->color==RED)
+    {
+        if(x->parent==x->parent->parent->leftchild)
+        {
+            s=x->parent->parent->rightchild;
+            if(s->color==RED)
+            {
+                x->parent->color=BLACK;
+                s->color=BLACK;
+                x->parent->parent->color=RED;
+                x=x->parent->parent;
+                continue;
+            }
+            else if(x==x->parent->rightchild)
+            {
+                cout<<"RotateL()"<<endl;
+                x=x->parent;
+                LeftRotate(t,x);
+            }
+            x->parent->color=BLACK;
+            x->parent->parent->color=RED;
+            RightRotate(t,x->parent->parent);
+            cout<<"RotateR"<<endl;
+        }
+        else
+        {
+            s=x->parent->parent->leftchild;
+            if(s->color==RED)
+            {
+                x->parent->color=BLACK;
+                s->color=BLACK;
+                x->parent->parent->color=RED;
+                x=x->parent->parent;
+                continue;
+            }
+            else if(x==x->parent->leftchild)
+            {
+                cout<<"LotateR()"<<endl;
+                x=x->parent;
+                RightLotate(t,x);
+            }
+            x->parent->color=BLACK;
+            x->parent->parent->color=RED;
+            LeftLotate(t,x);
+            cout<<"LotateL"<<endl;
+        }
+    }
+    t.root->color=BLACK;
+}
+
+bool Insert(RBTree &t,const Type &x)
+{
+    Node *s=t.root;
+    Node *p=t.NIL;
+    while(s!=t.NIL)
+    {
+        p=s;
+        if(p->data==x)
+            return false;
+        else if(p->data>x)
+            s=s->leftchild;
+        else
+            s=s->rightchild;
+    }
+    Node *q=buynode();
+    q->data=x;
+    q->parent=p;
+    if(p==t.NIL)
+        t.root=q;
+    else if(x<p->data)
+        p->leftchild=q;
+    else
+        p->rightchild=q;
+
+    q->leftchild=t.NIL;
+    q->rightchild=t.NIL;
+
+    q->color=RED;
+    Insert_Fixup(t,q);
+    return true;
+}
+void Bprint(RBTree &t,Node *root)
+{
+    if(root!=t.NIL)
+    {
+        cout<<"data:"<<root->data<<" color:"<<root->color<<endl;
+        Bprint(t,root->leftchild);
+        Bprint(t,root->rightchild);
+    }
+}
+int main()
+{
+    int ar[] = {10,7,5,8,6,9};
+    RBTree rb;
+    InitRBTree(rb);
+
+    int n = sizeof(ar) / sizeof(int);
+    for(int i=0; i<n; ++i)
+    {
+        Insert(rb, ar[i]);
+    }
+    Bprint(rb,rb.root);
+    return 0;
+}
